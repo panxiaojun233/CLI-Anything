@@ -101,9 +101,9 @@ if [ -f "${QODER_CONFIG}" ]; then
         # Create temp file in same directory for atomic mv on same filesystem
         TMP_CONFIG=$(mktemp "${CONFIG_DIR}/.qoder.json.XXXXXX")
         jq --arg path "${PLUGIN_DIR}" '
-            .plugins //= {} |
-            .plugins.sources //= {} |
-            .plugins.sources.local //= [] |
+            .plugins = (if .plugins | type == "object" then .plugins else {} end) |
+            .plugins.sources = (if .plugins.sources | type == "object" then .plugins.sources else {} end) |
+            .plugins.sources.local = (if .plugins.sources.local | type == "array" then .plugins.sources.local else [] end) |
             .plugins.sources.local += [{"path": $path}]
         ' "${QODER_CONFIG}" > "${TMP_CONFIG}"
         mv "${TMP_CONFIG}" "${QODER_CONFIG}"
